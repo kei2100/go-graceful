@@ -68,7 +68,7 @@ func (g *Graceful) Serve(command string, opts ...OptionFunc) error {
 
 	restartCh := make(chan os.Signal)
 	signal.Notify(restartCh, o.restartSignals...)
-	shutdownCh := make(chan os.Signal)
+	shutdownCh := make(chan os.Signal, 1) // buffer 1. to be able to receive shutdown signal even during restart
 	signal.Notify(shutdownCh, o.shutdownSignals...)
 
 	for {
