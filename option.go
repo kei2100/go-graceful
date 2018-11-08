@@ -11,6 +11,7 @@ import (
 // options
 type option struct {
 	args               []string
+	env                []string
 	listeners          []net.Listener
 	waitReadyFunc      func(ctx context.Context, extraFileConns []net.Conn) error
 	autoRestartEnabled bool
@@ -26,6 +27,7 @@ type option struct {
 }
 
 func (o *option) applyOrDefault(opts []OptionFunc) {
+	o.env = os.Environ()
 	o.restartSignals = []os.Signal{syscall.SIGHUP}
 	o.shutdownSignals = []os.Signal{os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT}
 	o.gracefulStopSignal = syscall.SIGTERM
@@ -70,6 +72,14 @@ type OptionFunc func(o *option)
 // WithArgs set command line arguments
 func WithArgs(args ...string) OptionFunc {
 	return func(o *option) { o.args = args }
+}
+
+// WithEnv set environment variables for worker processes
+// Each entry is of the form "key=value".
+// If Env is nil, the new process uses the current process's
+// environment.
+func WithEnv(env ...string) OptionFunc {
+	return func(o *option) { o.env = env }
 }
 
 // WithListeners set listeners.

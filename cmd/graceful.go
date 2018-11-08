@@ -13,6 +13,7 @@ import (
 
 var (
 	listens            []string
+	env                []string
 	autoRestartEnabled bool
 	startTimeout       time.Duration
 	shutdownTimeout    time.Duration
@@ -36,6 +37,7 @@ func init() {
 		pflag.PrintDefaults()
 	}
 	pflag.StringSliceVarP(&listens, "listen", "l", []string{}, "listen tcp address(es). e.g. -l 127.0.0.1:8000 -l 127.0.0.1:8001")
+	pflag.StringSliceVarP(&env, "env", "e", []string{}, "additional environment variables. e.g. -e AAA=BBB -e CCC=DDD")
 	pflag.BoolVar(&autoRestartEnabled, "auto-restart-enabled", false, "specifies if the graceful should automatically restart a worker if the worker process exits")
 	pflag.DurationVar(&startTimeout, "start-timeout", 10*time.Second, "amount of time the graceful will wait for the worker started")
 	pflag.DurationVar(&shutdownTimeout, "shutdown-timeout", 10*time.Second, "amount of time the graceful will wait for the worker shutdown")
@@ -46,15 +48,12 @@ func init() {
 }
 
 func main() {
-	if help {
-		pflag.Usage()
-		os.Exit(2)
-	}
 	args := pflag.Args()
-	if len(args) < 1 {
+	if help || len(args) < 1 {
 		pflag.Usage()
 		os.Exit(2)
 	}
+	env = append(os.Environ(), env...)
 	lns, err := createListeners()
 	if err != nil {
 		log.Fatalln(err)
@@ -64,6 +63,7 @@ func main() {
 	err = graceful.Serve(
 		args[0],
 		graceful.WithArgs(args[1:]...),
+		graceful.WithEnv(env...),
 		graceful.WithListeners(lns...),
 		graceful.WithAutoRestartEnabled(autoRestartEnabled),
 		graceful.WithTimeout(startTimeout, restartTimeout, shutdownTimeout),

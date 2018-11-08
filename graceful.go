@@ -53,7 +53,7 @@ func (g *Graceful) Serve(command string, opts ...OptionFunc) error {
 		Command:            command,
 		Args:               o.args,
 		ExtraFiles:         extraFiles,
-		Env:                []string{listenersEnv(o.listeners)},
+		Env:                append(o.env, listenersEnv(o.listeners)),
 		WaitReadyFunc:      o.waitReadyFunc,
 		AutoRestartEnabled: o.autoRestartEnabled,
 		StartTimeout:       o.startTimeout,
