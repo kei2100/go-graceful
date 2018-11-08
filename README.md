@@ -71,7 +71,7 @@ kei2100        53253   0.0  0.0  4393128   7804 s006  S+   11:15AM   0:00.02 ./h
 kei2100        53254   0.0  0.0  4389140   7692 s006  S+   11:15AM   0:00.01 /Users/kei2100/go/src/github.com/kei2100/go-graceful/example/http_server
 
 # 53253 is supervisor process
-# 53254is  worker process
+# 53254 is worker process
 
 $ lsof -i:8080
 COMMAND     PID      USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
@@ -93,7 +93,7 @@ $ ps aux | grep http_serve[r]
 kei2100        53253   0.0  0.0  4393128   7804 s006  S+   11:15AM   0:00.02 ./http_server
 kei2100        54001   0.0  0.0  4389140   7692 s006  S+   11:17AM   0:00.01 /Users/kei2100/go/src/github.com/kei2100/go-graceful/example/http_server
 
-# 54001 is restarted worker processc
+# 54001 is restarted worker process
 
 $ lsof -i:8080
 COMMAND     PID      USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
