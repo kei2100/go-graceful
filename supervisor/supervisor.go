@@ -100,7 +100,7 @@ func (s *Supervisor) restartWorker(ctx context.Context, stopSig os.Signal) error
 	// stop old worker
 	time.Sleep(s.StopOldDelay)
 	if err := oldwk.Stop(ctx, stopSig); err != nil {
-		log.Printf("supervisor: failed to stop old worker. sig %s. %v", stopSig, err)
+		log.Printf("supervisor: failed to stop old worker. sig=%s. %v", stopSig, err)
 		log.Println("supervisor: force stopping old worker")
 		if err := oldwk.Kill(); err != nil {
 			return fmt.Errorf("supervisor: faield to kill old worker: %v", err)
@@ -115,7 +115,7 @@ func (s *Supervisor) shutdownWorker(ctx context.Context, stopSig os.Signal) erro
 	s.workerMu.Unlock() // worker UNLOCK
 
 	if err := wk.Stop(ctx, stopSig); err != nil {
-		log.Printf("supervisor: failed to stop worker. sig %s. %v", stopSig, err)
+		log.Printf("supervisor: failed to stop worker. sig=%s. %v", stopSig, err)
 		log.Println("supervisor: force stopping worker")
 		if err := wk.Kill(); err != nil {
 			return fmt.Errorf("supervisor: faield to kill worker: %v", err)
