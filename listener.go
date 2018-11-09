@@ -17,9 +17,21 @@ func InheritedListeners() ([]net.Listener, error) {
 	lns := make([]net.Listener, 0)
 	envVal := os.Getenv(envKey)
 	for i, addr := range strings.Split(envVal, envSep) {
-		ln, err := net.FileListener(os.NewFile(uintptr(3+i), addr)) // 0:stdin, 1:stdout, 2:stderr
+		ln, err := func() (net.Listener, error) {
+			fd := uintptr(3 + i) // 0:stdin, 1:stdout, 2:stderr
+			f := os.NewFile(fd, addr)
+			if f == nil {
+				return nil, fmt.Errorf("graceful: failed to NewFile. fd %v, addr %v", fd, addr)
+			}
+			defer f.Close()
+			ln, err := net.FileListener(f)
+			if err != nil {
+				return nil, fmt.Errorf("graceful: failed to create file listener: %v", err)
+			}
+			return ln, nil
+		}()
 		if err != nil {
-			return nil, fmt.Errorf("graceful: failed to create file listener: %v", err)
+			return nil, err
 		}
 		lns = append(lns, ln)
 	}
