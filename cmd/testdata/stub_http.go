@@ -30,7 +30,7 @@ func mux() *http.ServeMux {
 		w.Write([]byte("ok"))
 	}))
 	mux.Handle("/delay", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(time.Second)
 		w.WriteHeader(200)
 	}))
 	return mux

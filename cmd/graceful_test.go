@@ -76,7 +76,7 @@ func TestGraceful_Restart(t *testing.T) {
 	}
 
 	go testGet(t, fmt.Sprintf("http://%s/delay", g.listenAddr))
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	if err := g.restartGraceful(); err != nil {
 		t.Fatal(err)
