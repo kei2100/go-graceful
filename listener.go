@@ -51,29 +51,19 @@ func listenersEnv(listeners []net.Listener) string {
 
 func createListenerFiles(listeners []net.Listener) ([]*os.File, error) {
 	fs := make([]*os.File, 0)
-	var err error
-loop:
 	for _, l := range listeners {
 		switch l := l.(type) {
 		case *net.TCPListener:
 			f, e := l.File()
 			if e != nil {
-				err = fmt.Errorf("graceful: failed to create listener file: %v", e)
-				break loop
+				closeListenerFiles(fs)
+				return nil, fmt.Errorf("graceful: failed to create listener file: %v", e)
 			}
 			fs = append(fs, f)
 		default:
-			err = fmt.Errorf("graceful: failed to create listener file. not implemented %T", l)
-			break loop
+			closeListenerFiles(fs)
+			return nil, fmt.Errorf("graceful: failed to create listener file. not implemented %T", l)
 		}
-	}
-	if err != nil {
-		for _, f := range fs {
-			if err := f.Close(); err != nil {
-				log.Printf("graceful: an error occurred %v", err)
-			}
-		}
-		return nil, err
 	}
 	return fs, nil
 }
