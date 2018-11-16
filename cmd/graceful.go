@@ -44,10 +44,10 @@ func init() {
 	pflag.DurationVar(&restartTimeout, "restart-timeout", 20*time.Second, "amount of time the graceful will wait for the worker restarted")
 	pflag.DurationVar(&stopOldDelay, "stop-old-delay", time.Second, "amount of time to suspend to the old worker shutdown")
 	pflag.BoolVarP(&help, "help", "h", false, "show this help")
-	pflag.Parse()
 }
 
 func main() {
+	pflag.Parse()
 	args := pflag.Args()
 	if help || len(args) < 1 {
 		pflag.Usage()

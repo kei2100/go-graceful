@@ -45,7 +45,7 @@ func (g *gp) stopGraceful(timeout time.Duration) error {
 		return fmt.Errorf("an error occurred while waiting for stop graceful: %v", ctx.Err())
 	case err := <-done:
 		if err != nil {
-			return fmt.Errorf("an error occurred while waiting for stop graceful: %v", ctx.Err())
+			return fmt.Errorf("an error occurred while waiting for stop graceful: %v", err)
 		}
 	}
 	return nil

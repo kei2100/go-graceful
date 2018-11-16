@@ -78,7 +78,7 @@ func TestGraceful_Restart(t *testing.T) {
 
 	testGet(t, fmt.Sprintf("http://%s/delay", g.listenAddr))
 
-	if err := g.stopGraceful(3*time.Second); err != nil {
+	if err := g.stopGraceful(3 * time.Second); err != nil {
 		t.Fatal(err)
 	}
 	if err := waitNoProcess(time.Second, append(process.childrenPids(), process.Pid())...); err != nil {
@@ -104,11 +104,11 @@ func TestGraceful_Restart_Multi(t *testing.T) {
 
 	requester := func() {
 		defer wg.Done()
-		tick := time.NewTicker(100*time.Millisecond)
+		tick := time.NewTicker(100 * time.Millisecond)
 		defer tick.Stop()
-		for   {
+		for {
 			select {
-			case <- tick.C:
+			case <-tick.C:
 				go testGet(t, fmt.Sprintf("http://%s/delay", g.listenAddr))
 			case <-stop:
 				return
@@ -122,7 +122,7 @@ func TestGraceful_Restart_Multi(t *testing.T) {
 		defer tick.Stop()
 		for {
 			select {
-			case <- tick.C:
+			case <-tick.C:
 				g.restartGraceful()
 			case <-stop:
 				return
@@ -133,14 +133,14 @@ func TestGraceful_Restart_Multi(t *testing.T) {
 	wg.Add(2)
 	go requester()
 	go restarter()
-	time.Sleep(15*time.Second)
+	time.Sleep(15 * time.Second)
 	close(stop)
 	wg.Wait()
 
 	if err := process.waitStartChildren(time.Second); err != nil {
 		t.Fatal(err)
 	}
-	if err := g.stopGraceful(3*time.Second); err != nil {
+	if err := g.stopGraceful(3 * time.Second); err != nil {
 		t.Fatal(err)
 	}
 	if err := waitNoProcess(time.Second, append(process.childrenPids(), process.Pid())...); err != nil {
