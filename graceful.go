@@ -83,10 +83,7 @@ func (g *Graceful) Serve(command string, opts ...OptionFunc) error {
 			err := restart(sv, o)
 			g.manualRestartedCh <- err
 		case sig := <-shutdownCh:
-			if err := shutdown(sv, sig, o); err != nil {
-				return err
-			}
-			return nil
+			return shutdown(sv, sig, o)
 		}
 	}
 }

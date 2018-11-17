@@ -73,10 +73,7 @@ func (w *Worker) Stop(ctx context.Context, sig os.Signal) error {
 // Kill does not wait until the Process has actually exited.
 func (w *Worker) Kill() error {
 	w.SetAutoRestart(false)
-	if err := w.signalProcess(os.Kill); err != nil {
-		return err
-	}
-	return nil
+	return w.signalProcess(os.Kill)
 }
 
 // Done returns a channel that's closed when this worker is done
