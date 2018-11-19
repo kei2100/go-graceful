@@ -15,8 +15,7 @@ const envSep = ";"
 // this func only for worker process
 func InheritedListeners() ([]net.Listener, error) {
 	lns := make([]net.Listener, 0)
-	envVal := os.Getenv(envKey)
-	for i, addr := range strings.Split(envVal, envSep) {
+	for i, addr := range InheritedAddrs() {
 		ln, err := func() (net.Listener, error) {
 			fd := uintptr(3 + i) // 0:stdin, 1:stdout, 2:stderr
 			f := os.NewFile(fd, addr)
@@ -36,6 +35,40 @@ func InheritedListeners() ([]net.Listener, error) {
 		lns = append(lns, ln)
 	}
 	return lns, nil
+}
+
+// InheritedAddrs lists inherited addrs from supervisor process.
+// this func only for worker process
+func InheritedAddrs() []string {
+	return strings.Split(os.Getenv(envKey), envSep)
+}
+
+// InheritOrListenTCP returns inherited listener.
+// if the addr is not included inherited addrs, create a new listener
+func InheritOrListenTCP(addr string) (net.Listener, error) {
+	for i, iaddr := range InheritedAddrs() {
+		if iaddr != addr {
+			continue
+		}
+		return func() (net.Listener, error) {
+			fd := uintptr(3 + i)
+			f := os.NewFile(fd, addr)
+			if f == nil {
+				return nil, fmt.Errorf("graceful: failed to NewFile. fd %v, addr %v", fd, addr)
+			}
+			defer f.Close()
+			ln, err := net.FileListener(f)
+			if err != nil {
+				return nil, fmt.Errorf("graceful: failed to create file listener: %v", err)
+			}
+			return ln, nil
+		}()
+	}
+	ln, err := net.Listen("tcp", addr)
+	if err != nil {
+		return nil, fmt.Errorf("graceful: failed to listen: %v", err)
+	}
+	return ln, nil
 }
 
 // listenersEnv returns env var from listener addrs.
