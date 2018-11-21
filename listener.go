@@ -46,6 +46,12 @@ func InheritedAddrs() []string {
 // InheritOrListenTCP returns inherited listener.
 // if the addr is not included inherited addrs, create a new listener
 func InheritOrListenTCP(addr string) (net.Listener, error) {
+	tcpAddr, err := net.ResolveTCPAddr("tcp", addr)
+	if err != nil {
+		return nil, fmt.Errorf("graceful: failed to resole tcp addr %s: %v", addr, err)
+	}
+	addr = tcpAddr.String()
+
 	for i, iaddr := range InheritedAddrs() {
 		if iaddr != addr {
 			continue
